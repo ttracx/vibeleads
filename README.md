@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VibeLeads 🚀
+
+Simple lead capture and email collection tool for landing pages.
+
+**Live:** https://vibeleads.vercel.app
+
+## Features
+
+- ✅ **Embeddable Forms** - Copy one line of code to add lead capture forms to any website
+- ✅ **Lead Dashboard** - View and manage all your captured leads
+- ✅ **CSV Export** - Download leads anytime, compatible with any email marketing tool
+- ✅ **Webhook Notifications** - Get instant notifications when new leads come in
+- ✅ **Stripe Integration** - Simple subscription billing
+
+## Pricing
+
+| Plan | Price | Leads/Month | Features |
+|------|-------|-------------|----------|
+| Free | $0 | 100 | 1 form, CSV export |
+| Starter | $9/mo | 1,000 | Unlimited forms, webhooks, priority support |
+| Pro | $29/mo | Unlimited | Custom branding, API access |
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Database:** Neon PostgreSQL + Prisma ORM
+- **Auth:** NextAuth.js
+- **Payments:** Stripe
+- **Styling:** Tailwind CSS
+- **Deployment:** Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ or Bun
+- PostgreSQL database (Neon recommended)
+- Stripe account
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repo
+git clone https://github.com/ttracx/vibeleads.git
+cd vibeleads
+
+# Install dependencies
+bun install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your credentials
+
+# Push database schema
+bunx prisma db push
+
+# Run development server
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Database
+DATABASE_URL="postgresql://..."
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# NextAuth
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
 
-## Learn More
+# Stripe
+STRIPE_SECRET_KEY="sk_..."
+STRIPE_PUBLISHABLE_KEY="pk_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_STARTER_PRICE_ID="price_..."
+STRIPE_PRO_PRICE_ID="price_..."
 
-To learn more about Next.js, take a look at the following resources:
+# App
+NEXT_PUBLIC_APP_URL="https://your-domain.com"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Embed Code
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To add a lead capture form to your website:
 
-## Deploy on Vercel
+```html
+<!-- Add this where you want the form to appear -->
+<div id="vibeleads-form"></div>
+<script src="https://vibeleads.vercel.app/api/embed/YOUR_FORM_ID"></script>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Webhook Payload
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+When a new lead is captured:
+
+```json
+{
+  "event": "lead.created",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "id": "clr1234567890",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "phone": "+1234567890",
+    "formId": "form_abc123",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+Includes `X-Signature` header with HMAC-SHA256 signature for verification.
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/leads` | GET | List leads (authenticated) |
+| `/api/leads` | POST | Submit lead (public) |
+| `/api/leads/export` | GET | Export leads as CSV |
+| `/api/forms` | GET/POST | Manage forms |
+| `/api/webhooks` | GET/POST | Manage webhooks |
+
+## License
+
+MIT
+
+---
+
+Built with ❤️ by [VibeCaaS](https://vibecaas.com)
