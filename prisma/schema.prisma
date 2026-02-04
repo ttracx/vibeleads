@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Stripe
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  stripeCurrentPeriodEnd DateTime?
+  
+  // Relations
+  forms         Form[]
+  leads         Lead[]
+  webhooks      Webhook[]
+}
+
+model Form {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Customization
+  buttonText  String   @default("Subscribe")
+  successMessage String @default("Thanks for subscribing!")
+  primaryColor String  @default("#0070f3")
+  
+  // Settings
+  collectName Boolean  @default(true)
+  collectPhone Boolean @default(false)
+  customFields Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  leads       Lead[]
+  
+  @@index([userId])
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  phone     String?
+  metadata  Json?
+  source    String?  // URL where form was embedded
+  
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([formId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  secret    String?
+  events    String[] @default(["lead.created"])
+  active    Boolean  @default(true)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+}
